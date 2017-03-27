@@ -1,0 +1,159 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Sorty</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/ui-lightness/jquery-ui.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+
+
+        <style>
+
+            body {
+                font-family: "Lato";
+            }
+
+            h1 {
+                font-weight: bold;
+            }
+
+            #sortable {
+                list-style-position: inside;
+                padding-left: 0;
+                width: 70%;
+                float: left;
+            }
+
+            #output-wrapper {
+                padding-left: 3%;
+                padding-right: 2%;
+                width: 25%;
+                right: 0;
+                position: fixed;
+            }
+
+            #sortable li {
+                padding: 10px;
+                cursor: pointer;
+                border: 1px solid #eee;
+                border-radius: 5px;
+            }
+
+            #sortable li.ui-sortable-helper {
+                background-color: #eee;
+                list-style-type: none;
+            }
+
+            #sortable .ui-state-highlight {
+                list-style-type: none;
+            }
+
+            textarea {
+                display: block;
+                width: 100%;
+                height: 150px;
+            }
+
+            button {
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 class="reset">Sorty</h1>
+
+        <div id="input-wrapper">
+            <label for="input">Stuff to sort: </label>
+            <textarea id="input"></textarea>
+            <p>Paste in your items to sort, one item per line.</p>
+
+            <button id="process-input">
+                Sort it!
+            </button>
+            <button id="clear">
+                Clear
+            </button>
+        </div>
+
+        <ol id="sortable">
+        </ol>
+
+        <div id="output-wrapper" style="display: none">
+            <label for="output">Sorted items: </label>
+            <textarea id="output" readonly=""></textarea>
+            <button id="copy" data-clipboard-target="#output">
+                Copy output
+            </button>
+            <button class="reset">
+                Start a new sort
+            </button>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+        <script src="https://cdn.rawgit.com/zenorocha/clipboard.js/v1.5.1/dist/clipboard.min.js"></script>
+        <script>
+
+
+        $(document).ready(function() {
+
+            new Clipboard('#copy');
+
+            // get input
+            $("#process-input").click(function() {
+                var list = [];
+
+                list = $('#input').val().split(/\r\n|\r|\n/g);
+
+                // populate ol
+                $.each(list, function(index, value) {
+                    var li;
+                    li = $("<li>").text(value.trim());
+                    if (value && value !== "") {
+                        $('#sortable').append(li);
+                    }
+                });
+
+                // make sure output is clear
+                $('#output').val("");
+
+                // active sortable
+                $("#sortable").sortable({
+                    containment: "parent",
+                    forcePlaceholderSize: true,
+                    placeholder: "ui-state-highlight",
+                    stop: function(event, ui) {
+                        $('#output').val("");
+                        $("#sortable li").each(function() {
+                            $('#output').val($('#output').val() + $(this).text() + "\n");
+                        });
+                        $('#input').val($('#output').val());
+                    }
+                });
+
+                // hide input controls
+                $("#input-wrapper").hide();
+
+                // show output controls
+                $("#output-wrapper").show();
+            });
+
+            $(".reset").click(function() {
+                $('#output').val("");
+                $("#input-wrapper").show();
+                $("#output-wrapper").hide();
+                $("#sortable").empty();
+            });
+
+            $('#clear').click(function() {
+                $('#input').val("");
+            });
+
+        });
+
+        </script>
+    </body>
+</html>
